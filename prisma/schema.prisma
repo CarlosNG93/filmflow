@@ -1,0 +1,96 @@
+datasource db {
+  url      = env("DATABASE_URL")
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Pelicula {
+  id              Int         @id @default(autoincrement())
+  titulo          String
+  sinopsis        String
+  anioLanzamiento Int
+  duracion        Int
+  imagenPortada   String
+  directorId      Int
+  director        Director    @relation(fields: [directorId], references: [id])
+  categorias       CategoriaPelicula[]
+  repartos         RepartoPelicula[]
+}
+
+model Director {
+  id            Int              @id @default(autoincrement())
+  nombre        String
+  nacionalidad  String
+  fechaNacimiento DateTime
+  biografia     String
+  imagen        String
+  peliculas     Pelicula[]
+}
+
+model Reparto {
+  id              Int            @id @default(autoincrement())
+  nombre          String
+  fechaNacimiento DateTime
+  nacionalidad    String
+  biografia       String
+  imagen          String
+  peliculas       RepartoPelicula[]
+}
+
+model Categoria {
+  id        Int              @id @default(autoincrement())
+  nombre    String
+  peliculas CategoriaPelicula[]
+}
+
+model CategoriaPelicula {
+  peliculaId   Int
+  categoriaId  Int
+  pelicula     Pelicula @relation(fields: [peliculaId], references: [id])
+  categoria    Categoria @relation(fields: [categoriaId], references: [id])
+
+  @@id([peliculaId, categoriaId])
+}
+
+model RepartoPelicula {
+  peliculaId Int
+  repartoId  Int
+  pelicula   Pelicula @relation(fields: [peliculaId], references: [id])
+  reparto    Reparto  @relation(fields: [repartoId], references: [id])
+
+  @@id([peliculaId, repartoId])
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id                 Int    @id @default(autoincrement())
+  userId             Int
+  user               User   @relation(fields: [userId], references: [id])
+  providerType       String
+  providerId         String
+  providerAccountId  String
+  refreshToken       String?
+  accessToken        String?
+  accessTokenExpires DateTime?
+}
+
+model Session {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  expires      DateTime
+  sessionToken String   @unique
+  accessToken  String   @unique
+}
