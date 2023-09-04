@@ -14,8 +14,8 @@ model Pelicula {
   anioLanzamiento Int
   duracion        Int
   imagenPortada   String
-  directorId      Int
   director        Director    @relation(fields: [directorId], references: [id])
+  directorId      Int
   categorias       CategoriaPelicula[]
   repartos         RepartoPelicula[]
 }
@@ -68,6 +68,7 @@ model User {
   id            Int       @id @default(autoincrement())
   name          String?
   email         String    @unique
+  role          String    @default("user")  // nuevo campo
   emailVerified DateTime?
   image         String?
   accounts      Account[]

@@ -11,13 +11,11 @@ export default NextAuth({
       clientSecret: process.env.GITHUB_SECRET,
     }),
   ],
+  
+
   adapter: PrismaAdapter(prisma),
   session: {
     maxAge: 30 * 24 * 60 * 60, // 30 días
   },
-  pages: {
-    signIn: '/auth/signin',
-    signOut: '/auth/signout',
-    error: '/auth/error',
-  },
+  
 })
