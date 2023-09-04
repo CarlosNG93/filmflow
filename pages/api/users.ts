@@ -3,18 +3,19 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
 import { requireAdminRole } from "../../utils/auth";
-import * as yup from 'yup';
+import * as yup from "yup";
 
 const userSchema = yup.object().shape({
   id: yup.number().integer(),
   name: yup.string().nullable(),
-  email: yup.string().email("Email no válido").required("El email es obligatorio."),
+  email: yup
+    .string()
+    .email("Email no válido")
+    .required("El email es obligatorio."),
   role: yup.string().oneOf(["user", "admin"], "Rol no válido").default("user"),
   emailVerified: yup.date().nullable(),
   image: yup.string().url("URL de imagen no válida").nullable(),
-  // Puedes elegir no validar `accounts` y `sessions` aquí ya que parecen ser relaciones
-  // y generalmente serán manejadas automáticamente por Prisma al insertar o actualizar.
-  // Pero si necesitas validar algún aspecto específico de ellas, puedes hacerlo.
+  
 });
 
 const prisma = new PrismaClient();
@@ -25,7 +26,6 @@ function transformDataForPrisma(data: any) {
     // Transforma aquí cualquier otro campo si es necesario.
   };
 }
-
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   await requireAdminRole(req, res);
@@ -46,7 +46,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     case "POST":
       try {
         const validatedData = await userSchema.validate(req.body);
-    const transformedData = transformDataForPrisma(validatedData);
+        const transformedData = transformDataForPrisma(validatedData);
         const user = await prisma.user.create({
           data: transformedData,
         });
@@ -60,9 +60,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       try {
         const validatedData = await userSchema.validate(req.body);
         const { id } = validatedData;
-    if (!id) throw new Error("Se necesita un ID para actualizar");
+        if (!id) throw new Error("Se necesita un ID para actualizar");
 
-    const transformedData = transformDataForPrisma(validatedData);
+        const transformedData = transformDataForPrisma(validatedData);
 
         const user = await prisma.user.update({
           where: { id },
