@@ -1,10 +1,14 @@
+import type { AppProps } from "next/app";
+import { DataProvider } from "../context/DataContext";
+import Navbar from "../components/Navbar";
+import '../styles/styles.css'
+import 'font-awesome/css/font-awesome.min.css';
 
-import type { AppProps } from 'next/app';
-import { DataProvider } from '../context/DataContext'; // Ajusta esta ruta al lugar donde tienes tu archivo DataContext.tsx
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <DataProvider>
+      <Navbar />
       <Component {...pageProps} />
     </DataProvider>
   );

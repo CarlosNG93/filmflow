@@ -15,7 +15,6 @@ const directorSchema = yup.object().shape({
   biografia: yup.string().required("La biografía es obligatoria."),
   imagen: yup
     .string()
-    .url("Debe ser una URL válida.")
     .required("La imagen es obligatoria."),
 });
 
@@ -42,6 +41,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     case "POST":
       try {
+        console.log(req.body);
         const validatedData = await directorSchema.validate(req.body);
         const director = await prisma.director.create({
           data: validatedData,

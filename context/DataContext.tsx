@@ -32,10 +32,11 @@ import React, {
   
   type DataProviderProps = {
     children: ReactNode;
+    initialData?: DataState;
   };
   
-  export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
-    const [data, setData] = useState<DataState>({
+  export const DataProvider: React.FC<DataProviderProps> = ({ children, initialData }) => {
+    const [data, setData] = useState<DataState>(initialData || {
       peliculas: [],
       reparto: [],
       categorias: [],
@@ -43,24 +44,37 @@ import React, {
     });
   
     const fetchData = async (endpoint: string, key: keyof DataState) => {
-      const response = await fetch(`/api/${endpoint}`);
-      const result = await response.json();
-      setData((prev) => ({ ...prev, [key]: result }));
-    };
+        try {
+          const response = await fetch(`/api/${endpoint}`);
+          if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+          }
+          const result = await response.json();
+          setData((prev) => ({ ...prev, [key]: result }));
+        } catch (error) {
+          console.error(`Error fetching data from /api/${endpoint}:`, error);
+        }
+      };
+      
   
-    const deleteData = async (
-      endpoint: string,
-      id: number,
-      key: keyof DataState
-    ) => {
-      await fetch(`/api/${endpoint}/${id}`, {
-        method: "DELETE",
-      });
-      setData((prev) => ({
-        ...prev,
-        [key]: (prev[key] as any[]).filter((item: any) => item.id !== id),
-      }));
-    };
+      const deleteData = async (
+        endpoint: string,
+        id: number,
+        key: keyof DataState
+      ) => {
+        await fetch(`/api/${endpoint}`, {  // notar que hemos eliminado `/${id}` de la URL, ya que no necesitamos un parámetro de ruta, sino que vamos a enviar el id en el cuerpo
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",  // Este encabezado es necesario para enviar datos JSON
+          },
+          body: JSON.stringify({ id }),  // Aquí estamos enviando el id en el cuerpo de la petición
+        });
+        setData((prev) => ({
+          ...prev,
+          [key]: (prev[key] as any[]).filter((item: any) => item.id !== id),
+        }));
+      };
+      
   
     const updateData = async (
       endpoint: string,

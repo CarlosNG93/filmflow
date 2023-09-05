@@ -7,6 +7,7 @@ type Pelicula = {
   anioLanzamiento: number;
   duracion: number;
   imagenPortada: string;
+  directorId: number;
 };
 
 type Reparto = {
