@@ -60,19 +60,22 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
       break;
 
-    case "DELETE":
-      try {
-        const { id } = req.body;
-        if (!id) throw new Error("Se necesita un ID para eliminar");
-
-        await prisma.reparto.delete({
-          where: { id },
-        });
-        res.status(200).json({ message: "Reparto eliminado correctamente" });
-      } catch (error) {
-        res.status(500).json({ error: "Ocurrió un error al eliminar el reparto" });
-      }
-      break;
+      case "DELETE":
+        try {
+          const { id } = req.body;
+          const reparto = await prisma.reparto.delete({
+            where: { id: id },
+          });
+          return res.status(200).json(reparto);
+        } catch (error) {
+          if (error instanceof yup.ValidationError) {
+            return res.status(400).json({ error: error.message });
+          }
+          // Otros tipos de errores se manejan aquí, si es necesario
+          return res
+            .status(500)
+            .json({ error: "Se ha producido un error inesperado." });
+        }
 
     default:
       res.setHeader("Allow", ["GET", "POST", "PUT", "DELETE"]);
